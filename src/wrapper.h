@@ -1,0 +1,22 @@
+#include <XPStandardWidgets.h>
+#include <XPUIGraphics.h>
+#include <XPWidgetDefs.h>
+#include <XPWidgetUtils.h>
+#include <XPWidgets.h>
+
+#include <XPLMCamera.h>
+#include <XPLMDataAccess.h>
+#include <XPLMDefs.h>
+#include <XPLMDisplay.h>
+#include <XPLMGraphics.h>
+#include <XPLMInstance.h>
+#include <XPLMMap.h>
+#include <XPLMMenus.h>
+#include <XPLMNavigation.h>
+#include <XPLMPlanes.h>
+#include <XPLMPlugin.h>
+#include <XPLMProcessing.h>
+#include <XPLMScenery.h>
+#include <XPLMSound.h>
+#include <XPLMUtilities.h>
+#include <XPLMWeather.h>
