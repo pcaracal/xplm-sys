@@ -3,9 +3,6 @@ use std::path::PathBuf;
 extern crate bindgen;
 
 fn main() {
-    if PathBuf::from("src/bindings.rs").exists() {
-        return;
-    }
     link_libraries();
 }
 
@@ -75,6 +72,9 @@ fn link_libraries() {
         .expect("Unable to generate bindings");
 
     bindings
-        .write_to_file("src/bindings.rs")
+        .write_to_file(
+            PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR env not set, how?"))
+                .join("bindgen.rs"),
+        )
         .expect("Couldn't write bindings!");
 }
