@@ -1,5 +1,8 @@
 use std::env;
-use std::path::PathBuf;
+use std::fs;
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::symlink;
+use std::path::{Path, PathBuf};
 extern crate bindgen;
 
 fn main() {
@@ -16,6 +19,7 @@ fn link_libraries() {
 
     if target.contains("-apple-") {
         let library_path = crate_path.join("SDK/Libraries/Mac");
+        fix_macos(&library_path);
         println!(
             "cargo:rustc-link-search=framework={}",
             library_path.to_str().unwrap()
@@ -77,4 +81,39 @@ fn link_libraries() {
                 .join("bindgen.rs"),
         )
         .expect("Couldn't write bindings!");
+}
+
+fn fix_macos(p: &Path) {
+    let xplm = p.join("XPLM.framework");
+    let xpwidgets = p.join("XPWidgets.framework");
+    repair_framework(&xplm, "XPLM");
+    repair_framework(&xpwidgets, "XPWidgets");
+}
+
+fn repair_framework(p: &Path, b: &str) {
+    let versions = p.join("Versions");
+    let current = versions.join("Current");
+    text_ptr_to_symlink(&current, "C");
+    text_ptr_to_symlink(&p.join(b), &format!("Versions/Current/{b}"));
+    text_ptr_to_symlink(&p.join("Resources"), "Versions/Current/Resources");
+}
+
+fn text_ptr_to_symlink(p: &Path, lt: &str) {
+    let Ok(m) = fs::symlink_metadata(p) else {
+        return;
+    };
+    if m.is_symlink() || !m.is_file() {
+        return;
+    }
+    let Ok(s) = fs::read_to_string(p) else {
+        return;
+    };
+    let norm = s.trim();
+    if norm != lt {
+        return;
+    }
+    if fs::remove_file(p).is_ok() {
+        #[cfg(target_family = "unix")]
+        let _ = symlink(lt, p);
+    }
 }
